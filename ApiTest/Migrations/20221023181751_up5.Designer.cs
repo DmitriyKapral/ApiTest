@@ -3,6 +3,7 @@ using System;
 using ApiTest.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiTest.Migrations
 {
     [DbContext(typeof(TestingContext))]
-    partial class TestingContextModelSnapshot : ModelSnapshot
+    [Migration("20221023181751_up5")]
+    partial class up5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,6 +88,9 @@ namespace ApiTest.Migrations
                     b.Property<string>("NameProject")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("StartWork")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

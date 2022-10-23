@@ -3,6 +3,7 @@ using System;
 using ApiTest.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiTest.Migrations
 {
     [DbContext(typeof(TestingContext))]
-    partial class TestingContextModelSnapshot : ModelSnapshot
+    [Migration("20221023173124_up3")]
+    partial class up3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,10 +41,7 @@ namespace ApiTest.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("PositionsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ProjectsId")
+                    b.Property<int>("PositionsId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Surname")
@@ -51,8 +51,6 @@ namespace ApiTest.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PositionsId");
-
-                    b.HasIndex("ProjectsId");
 
                     b.ToTable("Employees");
                 });
@@ -86,6 +84,9 @@ namespace ApiTest.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("StartWork")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.ToTable("Projects");
@@ -117,25 +118,36 @@ namespace ApiTest.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("EmployeesProjects", b =>
+                {
+                    b.Property<int>("EmployeesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProjectsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EmployeesId", "ProjectsId");
+
+                    b.HasIndex("ProjectsId");
+
+                    b.ToTable("EmployeesProjects");
+                });
+
             modelBuilder.Entity("ApiTest.Models.Employees", b =>
                 {
                     b.HasOne("ApiTest.Models.Positions", "Positions")
                         .WithMany("Employees")
-                        .HasForeignKey("PositionsId");
-
-                    b.HasOne("ApiTest.Models.Projects", "Projects")
-                        .WithMany("Employees")
-                        .HasForeignKey("ProjectsId");
+                        .HasForeignKey("PositionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Positions");
-
-                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("ApiTest.Models.Users", b =>
                 {
                     b.HasOne("ApiTest.Models.Employees", "Employees")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("EmployeesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -143,12 +155,27 @@ namespace ApiTest.Migrations
                     b.Navigation("Employees");
                 });
 
-            modelBuilder.Entity("ApiTest.Models.Positions", b =>
+            modelBuilder.Entity("EmployeesProjects", b =>
                 {
-                    b.Navigation("Employees");
+                    b.HasOne("ApiTest.Models.Employees", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApiTest.Models.Projects", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("ApiTest.Models.Projects", b =>
+            modelBuilder.Entity("ApiTest.Models.Employees", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("ApiTest.Models.Positions", b =>
                 {
                     b.Navigation("Employees");
                 });

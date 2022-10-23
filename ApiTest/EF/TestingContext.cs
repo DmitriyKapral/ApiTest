@@ -7,6 +7,8 @@ namespace ApiTest.EF
     {
         public DbSet<Users> Users { get; set; }
         public DbSet<Employees> Employees { get; set; }
+        public DbSet<Positions> Positions { get; set; }
+        public DbSet<Projects> Projects { get; set; }
 
         public TestingContext(DbContextOptions<TestingContext> options) : base(options)
         {

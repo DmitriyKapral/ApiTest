@@ -4,7 +4,6 @@
     {
         public int Id { get; set; }
         public string NameProject { get; set; }
-        public DateTime StartWork { get; set; }
-        public List<int> EmployeesId { get; set; }
+        public List<Employees> Employees { get; set; }
     }
 }

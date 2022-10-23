@@ -17,15 +17,95 @@ namespace ApiTest.Controllers
             db = context;
         }
 
-        [HttpGet("hello")]
-        public IActionResult GetTest()
+        [HttpGet("GetEmployee/{id}")]
+        public IActionResult GetEmployee(int id)
         {
-            Users users = new Users();
-            users.Email = "1231";
-            users.Password = "wadawd";
-            Employees employees = new Employees();
-            
+            Employees? employees = db.Employees.FirstOrDefault(x => x.Id == id);
+            if (employees is null)
+            {
+                return NotFound();
+            }
+/*            employees.Positions = db.Positions.FirstOrDefault(x => x.Id == employees.PositionsId);
+            employees.Projects = db.Projects.FirstOrDefault(x => x.Id == employees.ProjectsId);*/
             return Ok(employees);
+        }
+
+        [HttpPost("PostEmployee")]
+        public IActionResult PostEmployee([FromBody] EmployeeView employ)
+        {
+            if(db.Positions.FirstOrDefault(x => x.Name == employ.Position) is null)
+            {
+                Positions positions = new Positions
+                {
+                    Name = employ.Name
+                };
+                db.Positions.Add(positions);
+                db.SaveChanges();
+            }
+            if(db.Projects.FirstOrDefault(x => x.NameProject == employ.Project) is null)
+            {
+                Projects projects = new Projects
+                {
+                    NameProject = employ.Project
+                };
+                db.Projects.Add(projects);
+                db.SaveChanges();
+            }
+            Employees employees = new Employees
+            {
+                Name = employ.Name,
+                Surname = employ.Surname,
+                Patronymic = employ.Patronymic,
+                Positions = db.Positions.FirstOrDefault(x => x.Name == employ.Position),
+                Projects = db.Projects.FirstOrDefault(x => x.NameProject == employ.Project)
+            };
+            db.Employees.Add(employees);
+            db.SaveChanges();
+            return Ok();
+        }
+
+        [HttpDelete("Delete/{id}")]
+        public IActionResult DeleteEmployee(int id)
+        {
+            Employees? employees = db.Employees.FirstOrDefault(x => x.Id == id);
+            if (employees is null)
+            {
+                return NotFound();
+            }
+            db.Employees.Remove(employees);
+            db.SaveChanges();
+            return Ok();
+        }
+
+        [HttpPost("Update")]
+        public IActionResult UpdateEmployee([FromBody] EmployeeView employ)
+        {
+            Employees employees = db.Employees.First(x => x.Id == employ.Id);
+            if (db.Positions.FirstOrDefault(x => x.Name == employ.Position) is null)
+            {
+                Positions positions = new Positions
+                {
+                    Name = employ.Name
+                };
+                db.Positions.Add(positions);
+                db.SaveChanges();
+            }
+            if (db.Projects.FirstOrDefault(x => x.NameProject == employ.Project) is null)
+            {
+                Projects projects = new Projects
+                {
+                    NameProject = employ.Project
+                };
+                db.Projects.Add(projects);
+                db.SaveChanges();
+            }
+            employees.Name = employ.Name;
+            employees.Surname = employ.Surname;
+            employees.Patronymic = employ.Patronymic;
+            employees.Positions = db.Positions.FirstOrDefault(x => x.Name == employ.Position);
+            employees.Projects = db.Projects.FirstOrDefault(x => x.NameProject == employ.Project);
+            db.SaveChanges();
+            return Ok();
         }
 
         [HttpPost("Auth")]

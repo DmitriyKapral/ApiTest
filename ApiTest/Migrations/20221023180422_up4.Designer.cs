@@ -3,6 +3,7 @@ using System;
 using ApiTest.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiTest.Migrations
 {
     [DbContext(typeof(TestingContext))]
-    partial class TestingContextModelSnapshot : ModelSnapshot
+    [Migration("20221023180422_up4")]
+    partial class up4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,23 @@ namespace ApiTest.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ApiTest.Models.Company", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Companies");
+                });
 
             modelBuilder.Entity("ApiTest.Models.Employees", b =>
                 {
@@ -38,10 +58,10 @@ namespace ApiTest.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("PositionsId")
+                    b.Property<int>("PositionsId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ProjectsId")
+                    b.Property<int>("ProjectsId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Surname")
@@ -86,6 +106,9 @@ namespace ApiTest.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("StartWork")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.ToTable("Projects");
@@ -121,11 +144,15 @@ namespace ApiTest.Migrations
                 {
                     b.HasOne("ApiTest.Models.Positions", "Positions")
                         .WithMany("Employees")
-                        .HasForeignKey("PositionsId");
+                        .HasForeignKey("PositionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ApiTest.Models.Projects", "Projects")
                         .WithMany("Employees")
-                        .HasForeignKey("ProjectsId");
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Positions");
 
@@ -135,12 +162,17 @@ namespace ApiTest.Migrations
             modelBuilder.Entity("ApiTest.Models.Users", b =>
                 {
                     b.HasOne("ApiTest.Models.Employees", "Employees")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("EmployeesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("ApiTest.Models.Employees", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ApiTest.Models.Positions", b =>
