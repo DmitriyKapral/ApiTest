@@ -6,6 +6,7 @@ using ApiTest.ModelView;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiTest.Controllers
 {
@@ -20,11 +21,12 @@ namespace ApiTest.Controllers
         [HttpGet("GetEmployee/{id}")]
         public IActionResult GetEmployee(int id)
         {
-            Employees? employees = db.Employees.FirstOrDefault(x => x.Id == id);
+            Employees? employees = db.Employees.Include(x=>x.Positions).Include(x => x.Projects).FirstOrDefault(x => x.Id == id);
             if (employees is null)
             {
                 return NotFound();
             }
+            
 /*            employees.Positions = db.Positions.FirstOrDefault(x => x.Id == employees.PositionsId);
             employees.Projects = db.Projects.FirstOrDefault(x => x.Id == employees.ProjectsId);*/
             return Ok(employees);
