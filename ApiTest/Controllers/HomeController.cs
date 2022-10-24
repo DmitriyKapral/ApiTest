@@ -21,21 +21,21 @@ namespace ApiTest.Controllers
         [HttpGet("GetEmployee/{id}")]
         public IActionResult GetEmployee(int id)
         {
-            Employees? employees = db.Employees.Include(x=>x.Positions).Include(x => x.Projects).FirstOrDefault(x => x.Id == id);
+            Employees? employees = db.Employees.Include(x => x.Positions).Include(x => x.Projects).FirstOrDefault(x => x.Id == id);
             if (employees is null)
             {
                 return NotFound();
             }
-            
-/*            employees.Positions = db.Positions.FirstOrDefault(x => x.Id == employees.PositionsId);
-            employees.Projects = db.Projects.FirstOrDefault(x => x.Id == employees.ProjectsId);*/
+
+            /*            employees.Positions = db.Positions.FirstOrDefault(x => x.Id == employees.PositionsId);
+                        employees.Projects = db.Projects.FirstOrDefault(x => x.Id == employees.ProjectsId);*/
             return Ok(employees);
         }
 
-        [HttpPost("PostEmployee")]
+        [HttpPost("AddEmployee")]
         public IActionResult PostEmployee([FromBody] EmployeeView employ)
         {
-            if(db.Positions.FirstOrDefault(x => x.Name == employ.Position) is null)
+            if (db.Positions.FirstOrDefault(x => x.Name == employ.Position) is null)
             {
                 Positions positions = new Positions
                 {
@@ -44,7 +44,7 @@ namespace ApiTest.Controllers
                 db.Positions.Add(positions);
                 db.SaveChanges();
             }
-            if(db.Projects.FirstOrDefault(x => x.NameProject == employ.Project) is null)
+            if (db.Projects.FirstOrDefault(x => x.NameProject == employ.Project) is null)
             {
                 Projects projects = new Projects
                 {
@@ -111,24 +111,24 @@ namespace ApiTest.Controllers
         }
 
         [HttpPost("Auth")]
-        public IActionResult AuthUser([FromBody]LoginData loginData)
+        public IActionResult AuthUser([FromBody] LoginData loginData)
         {
-            List<Users> user = new List<Users>();
+            /*List<Users> user = new List<Users>();
             user.Add(new Users
             {
                 Id = 1,
                 Email = "kapralov_00@mail.ru",
                 Password = "12345",
-            }) ;
-            
+            });*/
+
             // находим пользователя 
-            //Users? users = db.Users.FirstOrDefault(p => p.Email == loginData.Email && p.Password == loginData.Password);
-            Users? users = user.FirstOrDefault(p => p.Email == loginData.Email && p.Password == loginData.Password);
+            Users? users = db.Users.Include(x=>x.Employees).FirstOrDefault(p => p.Email == loginData.Email && p.Password == loginData.Password);
+            //Users? users = user.FirstOrDefault(p => p.Email == loginData.Email && p.Password == loginData.Password);
             // если пользователь не найден, отправляем статусный код 400
-            if (users is null) 
+            if (users is null)
                 return BadRequest();
 
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, users.Email), new Claim("Id", users.Id.ToString()) };
+            var claims = new List<Claim> { new Claim(ClaimTypes.Name, users.Email), new Claim("Id", users.Employees.Id.ToString()) };
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
                     issuer: AuthOptions.ISSUER,
@@ -147,27 +147,19 @@ namespace ApiTest.Controllers
 
             return Ok(response);
         }
-        /* private readonly ILogger<HomeController> _logger;
 
-         public HomeController(ILogger<HomeController> logger)
-         {
-             _logger = logger;
-         }
-
-         public IActionResult Index()
-         {
-             return View();
-         }
-
-         public IActionResult Privacy()
-         {
-             return View();
-         }
-
-         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-         public IActionResult Error()
-         {
-             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-         }*/
+        /*[HttpPost("AddUser")]
+        public IActionResult AddUser([FromBody] LoginData loginData)
+        {
+            Users users = new Users
+            {
+                Email = loginData.Email,
+                Password = loginData.Password,
+                Employees = db.Employees.FirstOrDefault(x => x.Id == 4)
+            };
+            db.Users.Add(users);
+            db.SaveChanges();
+            return Ok();
+        }*/
     }
 }
