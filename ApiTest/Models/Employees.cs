@@ -1,4 +1,6 @@
-﻿namespace ApiTest.Models
+﻿using Newtonsoft.Json;
+
+namespace ApiTest.Models
 {
     public class Employees
     {
@@ -8,7 +10,9 @@
         public string Patronymic { get; set; }
         public int? PositionsId { get; set; }
         public Positions? Positions { get; set; }
+        [JsonIgnore]
         public int? ProjectsId { get; set; }
+        [JsonIgnore]
         public Projects? Projects { get; set; }
     }
 }

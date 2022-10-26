@@ -122,7 +122,7 @@ namespace ApiTest.Controllers
             });*/
 
             // находим пользователя 
-            Users? users = db.Users.Include(x=>x.Employees).FirstOrDefault(p => p.Email == loginData.Email && p.Password == loginData.Password);
+            Users? users = db.Users.Include(x => x.Employees).FirstOrDefault(p => p.Email == loginData.Email && p.Password == loginData.Password);
             //Users? users = user.FirstOrDefault(p => p.Email == loginData.Email && p.Password == loginData.Password);
             // если пользователь не найден, отправляем статусный код 400
             if (users is null)
@@ -161,5 +161,12 @@ namespace ApiTest.Controllers
             db.SaveChanges();
             return Ok();
         }*/
+
+        /*        [HttpGet("test")]
+                public IActionResult TestingGet()
+                {
+                    nav_o_fsk nav_O_Fsk = new nav_o_fsk();
+                    Ok(nav_O_Fsk);
+                }*/
     }
 }
